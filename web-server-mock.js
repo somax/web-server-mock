@@ -16,12 +16,7 @@ var util = require('util'),
     mock = require('./modules/mock'),
     qs = require('querystring');
 
-
-
-
-
 var DEFAULT_PORT = 8002;
-
 
 function main(argv) {
   new HttpServer({
@@ -31,8 +26,6 @@ function main(argv) {
     'DELETE': createServlet(StaticServlet),
     'HEAD': createServlet(StaticServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
-
-
 }
 
 function escapeHtml(value) {

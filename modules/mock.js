@@ -6,20 +6,21 @@
 var fs = require('fs'),
 	mock = {};
 
-mock.api = {};
+mock.api = {
+	test: 'hello!!'
+};
 mock.GET = function(_dataParts) {
 	return getDeep(this.api, _dataParts);
 }
 mock.POST = function(_dataParts, newData) {
-	return addDeep(this.api,_dataParts,newData);
+	return addDeep(this.api, _dataParts, newData);
 }
 mock.PUT = function(_dataParts, newData) {
-	return modDeep(this.api,_dataParts,newData);
+	return modDeep(this.api, _dataParts, newData);
 }
 mock.DELETE = function(_dataParts) {
-	return delDeep(this.api,_dataParts);
+	return delDeep(this.api, _dataParts);
 }
-
 
 
 
@@ -35,45 +36,45 @@ function getDeep(data, _dataParts) {
 	}
 }
 
-function modDeep (data, _dataParts, newData) {
-	var data  = getDeep(data, _dataParts);
-	if(data){
-		for(var k in newData){
+function modDeep(data, _dataParts, newData) {
+	var data = getDeep(data, _dataParts);
+	if (data) {
+		for (var k in newData) {
 			data[k] = newData[k];
 		}
 	}
 	return data;
 }
 
-function addDeep(data, _dataParts, newData){
-	var key,i=0;
-	for (; i < _dataParts.length-1; i++) {
+function addDeep(data, _dataParts, newData) {
+	var key, i = 0;
+	for (; i < _dataParts.length - 1; i++) {
 		key = _dataParts[i];
-		if(!data.hasOwnProperty(key)){
-			data[key]={};
+		if (!data.hasOwnProperty(key)) {
+			data[key] = {};
 		}
 		data = data[key];
 	}
-	data[_dataParts[i]]=newData;
+	data[_dataParts[i]] = newData;
 	return data;
 }
 
-function delDeep (data, _dataParts) {
-	var key,i=0;
-	try{
-		for (; i < _dataParts.length-1; i++) {
+function delDeep(data, _dataParts) {
+	var key, i = 0;
+	try {
+		for (; i < _dataParts.length - 1; i++) {
 			key = _dataParts[i];
-			if(data.hasOwnProperty(key)){
+			if (data.hasOwnProperty(key)) {
 				data = data[key];
-			}else{
+			} else {
 				return 404;
 			}
 		}
-		if(!data.hasOwnProperty(_dataParts[i])){
+		if (!data.hasOwnProperty(_dataParts[i])) {
 			return 404;
 		}
 		return delete data[_dataParts[i]];
-	}catch(e){
+	} catch (e) {
 
 
 		console.log(_dataParts.join('/') + " not exist!")
@@ -81,14 +82,23 @@ function delDeep (data, _dataParts) {
 	}
 }
 
-
-fs.readFile(process.argv[3] || './mockdata/api.json' , function(err, data) {
+var mockdataPath = './mockdata/api.json';
+fs.readFile(mockdataPath, function(err, data) {
 	if (err) {
-		console.log('readFileError:', err);
+		console.log('readFileError:', err.path);
+		return;
 	}
-	data = JSON.parse(data);
-	console.log(data);
-	mock.api = data;
+	try{
+		data = JSON.parse(data);
+		console.log(data);
+		mock.api = data;	
+	}catch(err){
+		console.log('parseError: ',mockdataPath,err)
+		return;
+	}
+
 });
+
+
 
 module.exports = mock;
