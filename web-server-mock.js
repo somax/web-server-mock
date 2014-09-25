@@ -128,13 +128,10 @@ StaticServlet.prototype.handleRequest = function(req, res) {
   console.log(parts);
   if (parts[1] == 'api') {
 
-
     try {
       var url = '/' + parts.slice(2).join('/');
       var _dataParts = parts.slice(2);
-      var data = mock.GET(parts.slice(2));
-      // if(!data)throw 'MockData is Empty!';
-      // console.log(mock.api.user.somax == mock.GET(['user','somax']))
+
       switch (req.method) {
         case 'GET':
           return self.sendData_(req, res, url, mock.GET(_dataParts));
@@ -166,14 +163,11 @@ StaticServlet.prototype.handleRequest = function(req, res) {
       }
     } catch (e) {
       self.sendData_(req, res, url, {
-        message: 'not find!'
+        error: 'not find!'
       }, 404);
       console.log('API_ERR::', e);
       return;
     }
-
-    
-
   }else{
     fs.stat(path, function(err, stat) {
       if (err)
@@ -184,9 +178,6 @@ StaticServlet.prototype.handleRequest = function(req, res) {
       return self.sendFile_(req, res, path);
     });
   }
-
-
-
 
 }
 
@@ -254,7 +245,8 @@ StaticServlet.prototype.sendRedirect_ = function(req, res, redirectUrl) {
 
 StaticServlet.prototype.sendData_ = function(req, res, path, data,code) {  
   res.writeHead(code||200, {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin':'*'
   });
   if (req.method === 'HEAD') {
     res.end();
