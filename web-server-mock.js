@@ -13,7 +13,7 @@ var util = require('util'),
     url = require('url'),
     events = require('events'),
 
-    mock = require('./node_modules/mock'),
+    mock = require('./modules/mock'),
     qs = require('querystring');
 
 
@@ -134,10 +134,20 @@ StaticServlet.prototype.handleRequest = function(req, res) {
 
       switch (req.method) {
         case 'GET':
-          return self.sendData_(req, res, url, mock.GET(_dataParts));
+          var code=200,data = mock.GET(_dataParts);
+          if(!data){
+            data = {error:'not find!'};
+            code = 404;
+          }
+          return self.sendData_(req, res, url, data,code);
         case 'POST':
           processRequest(req, function(newData) {
             self.sendData_(req, res, url, mock.POST(_dataParts,newData), 201);
+          });
+          break;
+        case 'PUT':
+          processRequest(req, function(newData) {
+            self.sendData_(req, res, url, mock.PUT(_dataParts,newData), 201);
           });
           break;
         case 'DELETE':
@@ -163,8 +173,8 @@ StaticServlet.prototype.handleRequest = function(req, res) {
       }
     } catch (e) {
       self.sendData_(req, res, url, {
-        error: 'not find!'
-      }, 404);
+        code: '500'
+      }, 500);
       console.log('API_ERR::', e);
       return;
     }
@@ -250,7 +260,7 @@ StaticServlet.prototype.sendData_ = function(req, res, path, data,code) {
   });
   if (req.method === 'HEAD') {
     res.end();
-  } else {
+  } else if(data){
     data = JSON.stringify(data);
     res.write(data);
     res.end();
@@ -309,7 +319,7 @@ StaticServlet.prototype.sendDirectory_ = function(req, res, path) {
 StaticServlet.prototype.writeDirectoryIndex_ = function(req, res, path, files) {
   path = path.substring(1);
   res.writeHead(200, {
-    'Content-Type': 'text/html'
+    'Content-Type': 'text/html; charset=UTF-8'
   });
   if (req.method === 'HEAD') {
     res.end();

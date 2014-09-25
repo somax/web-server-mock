@@ -10,15 +10,18 @@ mock.api = {};
 mock.GET = function(_dataParts) {
 	return getDeep(this.api, _dataParts);
 }
-mock.POST = function(_dataParts,newData) {
+mock.POST = function(_dataParts, newData) {
 	return addDeep(this.api,_dataParts,newData);
 }
-mock.PUT = function(data) {
-	// todo
+mock.PUT = function(_dataParts, newData) {
+	return modDeep(this.api,_dataParts,newData);
 }
 mock.DELETE = function(_dataParts) {
 	return delDeep(this.api,_dataParts);
 }
+
+
+
 
 function getDeep(data, _dataParts) {
 	try {
@@ -32,7 +35,17 @@ function getDeep(data, _dataParts) {
 	}
 }
 
-function addDeep(data,_dataParts,newData){
+function modDeep (data, _dataParts, newData) {
+	var data  = getDeep(data, _dataParts);
+	if(data){
+		for(var k in newData){
+			data[k] = newData[k];
+		}
+	}
+	return data;
+}
+
+function addDeep(data, _dataParts, newData){
 	var key,i=0;
 	for (; i < _dataParts.length-1; i++) {
 		key = _dataParts[i];
@@ -45,7 +58,7 @@ function addDeep(data,_dataParts,newData){
 	return data;
 }
 
-function delDeep (data,_dataParts) {
+function delDeep (data, _dataParts) {
 	var key,i=0;
 	try{
 		for (; i < _dataParts.length-1; i++) {
@@ -69,7 +82,7 @@ function delDeep (data,_dataParts) {
 }
 
 
-fs.readFile('./mockdata/api.json', function(err, data) {
+fs.readFile(process.argv[3] || './mockdata/api.json' , function(err, data) {
 	if (err) {
 		console.log('readFileError:', err);
 	}
