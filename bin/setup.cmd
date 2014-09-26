@@ -1,0 +1,1 @@
+copy %userprofile%\AppData\Roaming\npm\node_modules\web-server-mock\bin\wsm.cmd %userprofile%\AppData\Roaming\npm\wsm.cmd
