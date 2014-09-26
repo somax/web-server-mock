@@ -1,8 +1,3 @@
 {
-	"test":"helloTest!!",
-	"user":{
-		"somax":{"name":"马晓军","age":35},
-		"yi":{"name":"奕奕","age":25}
-	}
-
+	"test":"helloTest!!"
 }

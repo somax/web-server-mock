@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-ln ~/npm/lib/node_modules/web-server-mock/bin/wsm.sh ~/npm/bin/wsm

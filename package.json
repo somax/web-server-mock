@@ -1,10 +1,14 @@
 {
   "name": "web-server-mock",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "在Web-server.js的基础上，增加模拟restful api的支持 提供前端开发的模拟数据支撑",
   "main": "web-server-mock.js",
   "dependencies": {},
   "devDependencies": {},
+  "bin": {
+    "wsm": "./web-server-mock.js"
+
+  },
   "scripts": {
     "test": ""
   },
@@ -12,7 +16,7 @@
     "type": "git",
     "url": "https://github.com/somax/web-server-mock.git"
   },
-  "author": "Somax ma <somaxj@gmail.com>",
+  "author": "Somax Ma <somaxj@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/somax/web-server-mock/issues"

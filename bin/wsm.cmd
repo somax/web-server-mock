@@ -1,1 +1,0 @@
-node %userprofile%\AppData\Roaming\npm\node_modules\web-server-mock %1

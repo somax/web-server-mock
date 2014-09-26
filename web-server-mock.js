@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#! /usr/bin/env node
 
 /**
  * 在Web-server.js的基础上，增加模拟restful api的支持
@@ -17,6 +17,8 @@ var util = require('util'),
     qs = require('querystring');
 
 var DEFAULT_PORT = 8002;
+
+
 
 function main(argv) {
   new HttpServer({
@@ -362,6 +364,3 @@ function processRequest(req, callback) {
 
 // Must be last,
 main(process.argv);
-
-
-
