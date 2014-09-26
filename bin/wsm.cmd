@@ -1,1 +1,1 @@
-node C:\Users\xiaojun\AppData\Roaming\npm\node_modules\web-server-mock %1
+node %userprofile%\AppData\Roaming\npm\node_modules\web-server-mock %1
