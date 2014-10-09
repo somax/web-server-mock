@@ -1,8 +1,10 @@
 #! /usr/bin/env node
 
 /**
- * 在Web-server.js的基础上，增加模拟restful api的支持
- * 提供前端开发的模拟数据支撑
+ * 在Web-server.js的基础上，增加模拟restful api的支持，提供前端ajax开发的模拟数据支撑
+ * author: Somax Ma <somaxj@gmail.com>,
+ * license: ISC,
+ * version: 0.1.8
  */
 
 
@@ -18,6 +20,8 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8002;
 
+var VERSION = '0.1.8'
+
 
 
 function main(argv) {
@@ -26,7 +30,8 @@ function main(argv) {
     'POST': createServlet(StaticServlet),
     'PUT': createServlet(StaticServlet),
     'DELETE': createServlet(StaticServlet),
-    'HEAD': createServlet(StaticServlet)
+    'HEAD': createServlet(StaticServlet),
+    'OPTIONS': createServlet(StaticServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
 }
 
@@ -59,7 +64,8 @@ function HttpServer(handlers) {
 HttpServer.prototype.start = function(port) {
   this.port = port;
   this.server.listen(port);
-  util.puts('Http Server running at http://localhost:' + port + '/');
+  util.puts('WSM ('+VERSION+') running at http://localhost:' + port + '/\n');
+
 };
 
 HttpServer.prototype.parseUrl_ = function(urlString) {
@@ -78,6 +84,7 @@ HttpServer.prototype.handleRequest_ = function(req, res) {
   var handler = this.handlers[req.method];
   if (!handler) {
     res.writeHead(501);
+    res.write('Method: '+req.method + 'Not Implemented')
     res.end();
   } else {
     handler.call(this, req, res);
@@ -120,8 +127,40 @@ StaticServlet.prototype.handleRequest = function(req, res) {
 
 
   // api 模拟
-  console.log(parts);
+  // 
+  // 
+  //
+function processRequest(req, callback) {
+    var body = '';
+    req.on('data', function (data) {
+        body += data;
+    });
+    req.on('end', function () {
+      console.log(req.headers)
+
+      // if(req.headers['content-type'] && req.headers['content-type'].search('/json')>0){
+      if(/\/json/i.test(req.headers['content-type'])){
+        try{
+          console.log('body::',body)
+          var data = JSON.parse(body);
+          console.log('data::',data)
+
+          callback(data);
+        }catch(e){
+          console.log('ERROR: parse json error!');
+          self.sendError_(req,res,'ERROR: parse json error!')
+        }
+      }else{
+          console.log('content-type not application/json::',body);         
+          callback(qs.parse(body));
+      }   
+    });
+}
+  // console.log(parts);
   if (parts[1] == 'api') {
+    res.setHeader('Access-Control-Allow-Origin','*');
+    res.setHeader('Access-Control-Allow-Methods','POST, GET, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers','accept, content-type');
 
     try {
       var url = '/' + parts.slice(2).join('/');
@@ -137,12 +176,15 @@ StaticServlet.prototype.handleRequest = function(req, res) {
           return self.sendData_(req, res, url, data,code);
         case 'POST':
           processRequest(req, function(newData) {
-            self.sendData_(req, res, url, mock.POST(_dataParts,newData), 201);
+              self.sendData_(req, res, url, mock.POST(_dataParts,newData), 201);
           });
+          break;
+        case 'OPTIONS':
+          res.end();
           break;
         case 'PUT':
           processRequest(req, function(newData) {
-            self.sendData_(req, res, url, mock.PUT(_dataParts,newData), 201);
+              self.sendData_(req, res, url, mock.PUT(_dataParts,newData), 201);
           });
           break;
         case 'DELETE':
@@ -164,7 +206,7 @@ StaticServlet.prototype.handleRequest = function(req, res) {
           self.sendData_(req, res, url, {message: msg},code);
           break;
         default:
-          //
+          self.sendError_(req,res,'Method Not Implemented!')
       }
     } catch (e) {
       self.sendData_(req, res, url, {
@@ -194,6 +236,7 @@ StaticServlet.prototype.sendError_ = function(req, res, error) {
   res.write('<title>Internal Server Error</title>\n');
   res.write('<h1>Internal Server Error</h1>');
   res.write('<pre>' + escapeHtml(util.inspect(error)) + '</pre>');
+  res.end();
   util.puts('500 Internal Server Error');
   util.puts(util.inspect(error));
 };
@@ -250,8 +293,7 @@ StaticServlet.prototype.sendRedirect_ = function(req, res, redirectUrl) {
 
 StaticServlet.prototype.sendData_ = function(req, res, path, data,code) {  
   res.writeHead(code||200, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin':'*'
+    'Content-Type': 'application/json'
   });
   if (req.method === 'HEAD') {
     res.end();
@@ -283,33 +325,42 @@ StaticServlet.prototype.sendFile_ = function(req, res, path) {
 };
 
 StaticServlet.prototype.sendDirectory_ = function(req, res, path) {
+
   var self = this;
-  if (path.match(/[^\/]$/)) {
-    req.url.pathname += '/';
-    var redirectUrl = url.format(url.parse(url.format(req.url)));
-    return self.sendRedirect_(req, res, redirectUrl);
-  }
-  fs.readdir(path, function(err, files) {
-    if (err)
-      return self.sendError_(req, res, error);
 
-    if (!files.length)
-      return self.writeDirectoryIndex_(req, res, path, []);
-
-    var remaining = files.length;
-    files.forEach(function(fileName, index) {
-      fs.stat(path + '/' + fileName, function(err, stat) {
-        if (err)
-          return self.sendError_(req, res, err);
-        if (stat.isDirectory()) {
-          files[index] = fileName + '/';
+  fs.exists( path + 'index.html', function(exist) {
+      if (false && exist) {
+        return self.sendFile_(req, res, path + '/index.html');
+      } else {
+        if (path.match(/[^\/]$/)) {
+          req.url.pathname += '/';
+          var redirectUrl = url.format(url.parse(url.format(req.url)));
+          return self.sendRedirect_(req, res, redirectUrl);
         }
-        if (!(--remaining))
-          return self.writeDirectoryIndex_(req, res, path, files);
-      });
+        fs.readdir(path, function(err, files) {
+          if (err)
+            return self.sendError_(req, res, error);
+
+          if (!files.length)
+            return self.writeDirectoryIndex_(req, res, path, []);
+
+          var remaining = files.length;
+          files.forEach(function(fileName, index) {
+            fs.stat(path + '/' + fileName, function(err, stat) {
+              if (err)
+                return self.sendError_(req, res, err);
+              if (stat.isDirectory()) {
+                files[index] = fileName + '/';
+              }
+              if (!(--remaining))
+                return self.writeDirectoryIndex_(req, res, path, files);
+            });
+          });
+        });
+      }
     });
-  });
-};
+
+  };
 
 StaticServlet.prototype.writeDirectoryIndex_ = function(req, res, path, files) {
   path = path.substring(1);
@@ -339,27 +390,7 @@ StaticServlet.prototype.writeDirectoryIndex_ = function(req, res, path, files) {
 };
 
 
-//
-function processRequest(req, callback) {
-    var body = '';
-    req.on('data', function (data) {
-        body += data;
-    });
-    req.on('end', function () {
-      console.log(req.headers)
 
-      if(req.headers['content-type'] === 'application/json'){
-        try{
-          var data = JSON.parse(body);
-          callback(data);
-        }catch(e){
-          console.log('ERROR: parse json error!')
-        }
-      }else{
-         callback(qs.parse(body));
-      }   
-    });
-}
 
 
 // Must be last,

@@ -56,7 +56,7 @@ function addDeep(data, _dataParts, newData) {
 		data = data[key];
 	}
 	data[_dataParts[i]] = newData;
-	return data;
+	return newData;
 }
 
 function delDeep(data, _dataParts) {
