@@ -139,6 +139,7 @@ StaticServlet.prototype.handleRequest = function(req, res) {
 
 
 
+
 function processRequest(req, callback) {
     var body = '';
     req.on('data', function (data) {
@@ -332,7 +333,7 @@ StaticServlet.prototype.sendFile_ = function(req, res, path) {
   } else {
     file.on('data', res.write.bind(res));
     file.on('close', function() {
-      if(/html|htm/.test(fileExt)){
+      if(/html|htm/.test(fileExt) && liveload.watched){
         res.write('<script src="/liveload.js"></script>')
       }
       res.end();

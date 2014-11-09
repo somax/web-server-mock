@@ -49,7 +49,7 @@ SockJS=function(){var a=document,b=window,c={},d=function(){};d.prototype.addEve
             };
 
             sockjs.onclose   = function()  {
-                if(reConnCount<100)reConnTimeout =  setTimeout(mackConn,2000)
+                if(reConnCount<10)reConnTimeout =  setTimeout(mackConn,2000)
             };
 
             reConnCount++;

@@ -2,8 +2,8 @@ var fs = require('fs'),
   sockjs = require('sockjs');
 
 var liveload = {
+  watched:false,
   watch: function(server, watchFile) {
-
     if (watchFile) {
       var sockjs_live = sockjs.createServer();
       sockjs_live.on('connection', function(conn) {
@@ -20,11 +20,14 @@ var liveload = {
       sockjs_live.installHandlers(server, {
         prefix: '/liveload'
       });
+      this.watched = true;
     }
   },
   resolvePath: function(path) {
     var resolvedPath = fs.realpathSync(path);
-    return resolvedPath.split('/').slice(0, -1).join('/') + '/modules/liveload-client.js';
+    resolvedPath = resolvedPath.split('/').slice(0, -1).join('/') + '/modules/liveload-client.js'
+    console.log('resolvedPath:' , resolvedPath)
+    return resolvedPath;
   }
 }
 module.exports = liveload;
