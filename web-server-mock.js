@@ -363,9 +363,10 @@ StaticServlet.prototype.sendLiveload = function(req,res,path) {
   var self = this;
 
   fs.realpath(process.argv[1], function(err, resolvedPath) {
-    console.log(resolvedPath)
 
-    var file = fs.createReadStream(resolvedPath+'/modules/liveload-client.js');
+    var path = resolvedPath.split('/').slice(0,-1).join('/')+'/modules/liveload-client.js'
+
+    var file = fs.createReadStream(path);
 
     res.writeHead(200, {
       'Content-Type': StaticServlet.MimeMap['js']
