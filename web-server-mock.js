@@ -18,8 +18,7 @@ var util = require('util'),
     mock = require('./modules/mock'),
     qs = require('querystring');
 
-    sockjs = require('sockjs')
-    // liveload = require('./modules/liveload')
+    liveload = require('./modules/liveload')
 
 var DEFAULT_PORT = 8002;
 
@@ -71,23 +70,8 @@ HttpServer.prototype.start = function(port,watchFile) {
 
   this.port = port;
 
-
-  if (watchFile) {
-    var sockjs_live = sockjs.createServer();
-    sockjs_live.on('connection', function(conn) {
-
-      conn.on('close', function() {
-        fs.unwatchFile(watchFile)
-      });
-
-      fs.watchFile(watchFile, function(curr, prev) {
-        conn.write("reload");
-      });
-    });
-    sockjs_live.installHandlers(this.server, {
-      prefix: '/liveload'
-    });
-  }
+//监视文件 
+  liveload.watch(this.server,watchFile);
 
 
 
@@ -241,9 +225,10 @@ function processRequest(req, callback) {
       console.log('API_ERR::', e);
       return;
     }
+  // loda liveload.js
   }else if (parts[1] == 'liveload.js') {
-
-    return self.sendLiveload(req,res,parts[1]);
+    return self.sendFile_(req,res,liveload.resolvePath(process.argv[1]))
+  // default
   }else{
     fs.stat(path, function(err, stat) {
       if (err)
@@ -358,33 +343,6 @@ StaticServlet.prototype.sendFile_ = function(req, res, path) {
   }
 };
 
-
-StaticServlet.prototype.sendLiveload = function(req,res,path) {
-  var self = this;
-
-  fs.realpath(process.argv[1], function(err, resolvedPath) {
-
-    var path = resolvedPath.split('/').slice(0,-1).join('/')+'/modules/liveload-client.js'
-
-    var file = fs.createReadStream(path);
-
-    res.writeHead(200, {
-      'Content-Type': StaticServlet.MimeMap['js']
-    });
-
-    file.on('data', res.write.bind(res));
-    file.on('close', function() {
-      res.end();
-    });
-    file.on('error', function(error) {
-      self.sendError_(req, res, error);
-    });
-  })
-
-
-
-
-};
 
 StaticServlet.prototype.sendDirectory_ = function(req, res, path) {
 
