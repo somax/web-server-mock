@@ -18,6 +18,9 @@ var util = require('util'),
     mock = require('./modules/mock'),
     qs = require('querystring');
 
+    sockjs = require('sockjs')
+    // liveload = require('./modules/liveload')
+
 var DEFAULT_PORT = 8002;
 
 var VERSION = '0.1.8'
@@ -32,7 +35,7 @@ function main(argv) {
     'DELETE': createServlet(StaticServlet),
     'HEAD': createServlet(StaticServlet),
     'OPTIONS': createServlet(StaticServlet)
-  }).start(Number(argv[2]) || DEFAULT_PORT);
+  }).start(Number(argv[2]) || DEFAULT_PORT,argv[3]);
 }
 
 function escapeHtml(value) {
@@ -61,8 +64,34 @@ function HttpServer(handlers) {
   this.server = http.createServer(this.handleRequest_.bind(this));
 }
 
-HttpServer.prototype.start = function(port) {
+
+
+
+HttpServer.prototype.start = function(port,watchFile) {
+
   this.port = port;
+
+
+  if (watchFile) {
+    var sockjs_live = sockjs.createServer();
+    sockjs_live.on('connection', function(conn) {
+
+      conn.on('close', function() {
+        fs.unwatchFile(watchFile)
+      });
+
+      fs.watchFile(watchFile, function(curr, prev) {
+        conn.write("reload");
+      });
+    });
+    sockjs_live.installHandlers(this.server, {
+      prefix: '/liveload'
+    });
+  }
+
+
+
+
   this.server.listen(port);
   util.puts('WSM ('+VERSION+') running at http://localhost:' + port + '/\n');
 
@@ -126,10 +155,6 @@ StaticServlet.prototype.handleRequest = function(req, res) {
 
 
 
-  // api 模拟
-  // 
-  // 
-  //
 function processRequest(req, callback) {
     var body = '';
     req.on('data', function (data) {
@@ -156,7 +181,8 @@ function processRequest(req, callback) {
       }   
     });
 }
-  // console.log(parts);
+
+  // api 模拟
   if (parts[1] == 'api') {
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','POST, GET, PUT, DELETE, OPTIONS');
@@ -215,6 +241,9 @@ function processRequest(req, callback) {
       console.log('API_ERR::', e);
       return;
     }
+  }else if (parts[1] == 'liveload.js') {
+
+    return self.sendLiveload(req,res,parts[1]);
   }else{
     fs.stat(path, function(err, stat) {
       if (err)
@@ -227,6 +256,7 @@ function processRequest(req, callback) {
   }
 
 }
+
 
 StaticServlet.prototype.sendError_ = function(req, res, error) {
   res.writeHead(500, {
@@ -307,13 +337,40 @@ StaticServlet.prototype.sendData_ = function(req, res, path, data,code) {
 StaticServlet.prototype.sendFile_ = function(req, res, path) {
   var self = this;
   var file = fs.createReadStream(path);
+  var fileExt = path.split('.').pop();
   res.writeHead(200, {
     'Content-Type': StaticServlet.
-      MimeMap[path.split('.').pop()] || 'text/plain'
+      MimeMap[fileExt] || 'text/plain'
   });
   if (req.method === 'HEAD') {
     res.end();
   } else {
+    file.on('data', res.write.bind(res));
+    file.on('close', function() {
+      if(/html|htm/.test(fileExt)){
+        res.write('<script src="/liveload.js"></script>')
+      }
+      res.end();
+    });
+    file.on('error', function(error) {
+      self.sendError_(req, res, error);
+    });
+  }
+};
+
+
+StaticServlet.prototype.sendLiveload = function(req,res,path) {
+  var self = this;
+
+  fs.realpath(process.argv[1], function(err, resolvedPath) {
+    console.log(resolvedPath)
+
+    var file = fs.createReadStream(resolvedPath+'/modules/liveload-client.js');
+
+    res.writeHead(200, {
+      'Content-Type': StaticServlet.MimeMap['js']
+    });
+
     file.on('data', res.write.bind(res));
     file.on('close', function() {
       res.end();
@@ -321,7 +378,11 @@ StaticServlet.prototype.sendFile_ = function(req, res, path) {
     file.on('error', function(error) {
       self.sendError_(req, res, error);
     });
-  }
+  })
+
+
+
+
 };
 
 StaticServlet.prototype.sendDirectory_ = function(req, res, path) {
