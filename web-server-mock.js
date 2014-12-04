@@ -22,7 +22,7 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8002;
 
-var VERSION = '0.1.10'
+var VERSION = '0.1.12'
 
 
 

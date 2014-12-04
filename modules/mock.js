@@ -11,6 +11,9 @@ mock.api = {
 };
 mock.GET = function(_reqUrl) {
 	var data = this.api[_reqUrl.path.replace('/api/','')];
+	if(typeof data =='function'){
+		data = data();
+	}
 	return data;
 }
 
@@ -84,22 +87,25 @@ function delDeep(data, _dataParts) {
 	}
 }
 
-var mockdataPath = './mockdata/api.json';
+var mockdataPath = './mockdata/api.js';
 fs.readFile(mockdataPath, function(err, data) {
 	if (err) {
-		console.log('readFileError:', err.path);
+		console.log('API file not exist: ', err.path);
 		return;
 	}
 	try{
-		data = JSON.parse(data);
-		console.log(data);
-		mock.api = data;	
+		mock.api = eval(data.toString());
+		console.log(mock.api);
 	}catch(err){
-		console.log('parseError: ',mockdataPath,err)
+		console.log('Parse API Error: ',mockdataPath,err)
 		return;
 	}
 
 });
+
+
+
+
 
 
 
