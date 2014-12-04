@@ -1,3 +1,4 @@
 {
-	"test":"helloTest!!"
+	"test":"helloTest!!",
+	"test?n=abc":"hello abc!"
 }

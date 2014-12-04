@@ -22,7 +22,7 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8002;
 
-var VERSION = '0.1.8'
+var VERSION = '0.1.10'
 
 
 
@@ -168,18 +168,19 @@ function processRequest(req, callback) {
 }
 
   // api 模拟
+  console.log(req.url,parts)
   if (parts[1] == 'api') {
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','POST, GET, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers','accept, content-type');
 
     try {
-      var url = '/' + parts.slice(2).join('/');
       var _dataParts = parts.slice(2);
+      var url = '/' + _dataParts.join('/');
 
       switch (req.method) {
         case 'GET':
-          var code=200,data = mock.GET(_dataParts);
+          var code=200,data = mock.GET(req.url);
           if(!data){
             data = {error:'not find!'};
             code = 404;

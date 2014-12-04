@@ -9,9 +9,11 @@ var fs = require('fs'),
 mock.api = {
 	test: 'hello!!'
 };
-mock.GET = function(_dataParts) {
-	return getDeep(this.api, _dataParts);
+mock.GET = function(_reqUrl) {
+	var data = this.api[_reqUrl.path.replace('/api/','')];
+	return data;
 }
+
 mock.POST = function(_dataParts, newData) {
 	return addDeep(this.api, _dataParts, newData);
 }
