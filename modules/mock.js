@@ -4,7 +4,9 @@
  */
 
 var fs = require('fs'),
-	mock = {};
+	mock = {},
+	mockdataPath = './mockdata/api.js';
+
 
 mock.api = {
 	test: 'hello!!'
@@ -87,24 +89,30 @@ function delDeep(data, _dataParts) {
 	}
 }
 
-var mockdataPath = './mockdata/api.js';
-fs.readFile(mockdataPath, function(err, data) {
-	if (err) {
-		console.log('API file not exist: ', err.path);
-		return;
-	}
-	try{
-		mock.api = eval(data.toString());
-		console.log(mock.api);
-	}catch(err){
-		console.log('Parse API Error: ',mockdataPath,err)
-		return;
-	}
 
+function readAPI(_apiPath){
+	fs.readFile(_apiPath, function(err, data) {
+		if (err) {
+			console.log('API file not exist: ', err.path);
+			return;
+		}
+		try{
+			mock.api = eval(data.toString());
+			console.log(mock.api);
+		}catch(err){
+			console.log('Parse API Error: ',_apiPath,err)
+			return;
+		}
+
+	});
+}
+
+readAPI(mockdataPath);
+
+fs.watchFile(mockdataPath, function(curr, prev) {
+    console.log('Reload API...');
+    readAPI(mockdataPath);   
 });
-
-
-
 
 
 
