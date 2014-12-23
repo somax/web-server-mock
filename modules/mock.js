@@ -12,10 +12,19 @@ mock.api = {
 	test: 'hello!!'
 };
 mock.GET = function(_reqUrl) {
-	var data = this.api[_reqUrl.path.replace('/api/','')];
-	if(typeof data =='function'){
-		data = data();
+	var data;
+	if(_reqUrl.path ==='/api'){
+		data = [];
+		for(var k in mock.api){
+			data.push(k);
+		}
+	}else{
+		data = this.api[_reqUrl.path.replace('/api/','')];
+		if(typeof data =='function'){
+			data = data();
+		}
 	}
+
 	return data;
 }
 
