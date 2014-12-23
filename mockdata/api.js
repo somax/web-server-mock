@@ -18,7 +18,7 @@
 		return _results;
 	}
 
-	_api['foo?name=moss']=getBy('users','name','moss');
+	_api['foo?name=moss']=getBy('users','name','mosses');
 
 	return _api;
 
