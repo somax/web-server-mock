@@ -102,8 +102,9 @@ function delDeep(data, _dataParts) {
 function readAPI(_apiPath) {
 
 	fs.readdir(_apiPath, function(err, files) {
-		if (err)
-			return self.sendError_(req, res, error);
+		if (err){
+			return console.log('if need mockdata, put *.js file in ' + _apiPath + '!');
+		}
 
 		if (files.length) {
 			files.forEach(function(fileName, index) {

@@ -4,7 +4,7 @@
  * 在Web-server.js的基础上，增加模拟restful api的支持，提供前端ajax开发的模拟数据支撑
  * author: Somax Ma <somaxj@gmail.com>,
  * license: ISC,
- * version: 0.1.13
+ * version: 0.1.14
  */
 
 
@@ -22,7 +22,7 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8002;
 
-var VERSION = '0.1.13'
+var VERSION = '0.1.14'
 
 
 
