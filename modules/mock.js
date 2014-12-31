@@ -5,17 +5,25 @@
 
 var fs = require('fs'),
 	mock = {},
-	mockdataPath = './mockdata/api.js';
-
+	mockdataPath = './mockdata/';
 
 mock.api = {
 	test: 'hello!!'
 };
 mock.GET = function(_reqUrl) {
-	var data = this.api[_reqUrl.path.replace('/api/','')];
-	if(typeof data =='function'){
-		data = data();
+	var data;
+	if(_reqUrl.path ==='/api'){
+		data = [];
+		for(var k in mock.api){
+			data.push(k);
+		}
+	}else{
+		data = this.api[_reqUrl.path.replace('/api/','')];
+		if(typeof data =='function'){
+			data = data();
+		}
 	}
+
 	return data;
 }
 
@@ -90,6 +98,7 @@ function delDeep(data, _dataParts) {
 }
 
 
+<<<<<<< HEAD
 function readAPI(_apiPath){
 	fs.readFile(_apiPath, function(err, data) {
 		if (err) {
@@ -106,6 +115,49 @@ function readAPI(_apiPath){
 
 	});
 }
+
+readAPI(mockdataPath);
+=======
+function readAPI(_apiPath) {
+
+	fs.readdir(_apiPath, function(err, files) {
+		if (err){
+			return console.log('if need mockdata, put *.js file in ' + _apiPath + '!');
+		}
+
+		if (files.length) {
+			files.forEach(function(fileName, index) {
+				if (/(.js$)/.test(fileName)) {
+					var _file = _apiPath + fileName;
+					fs.readFile(_file, function(err, data) {
+						if (err) {
+							console.log('read ' + err.path + ' Error!');
+							return;
+						}
+						try {
+							var _api = eval(data.toString());
+							for (var k in _api) {
+								mock.api[k] = _api[k];
+							}
+							console.log(_file, _api);
+						} catch (err) {
+							console.log('Parse API Error: ', _file, err)
+							return;
+						}
+
+					});
+				}
+			});
+		}
+
+	})
+}
+>>>>>>> js-reload
+
+fs.watchFile(mockdataPath, function(curr, prev) {
+    console.log('Reload API...');
+    readAPI(mockdataPath);   
+});
 
 readAPI(mockdataPath);
 
