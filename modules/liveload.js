@@ -1,25 +1,31 @@
 var fs = require('fs'),
-  sockjs = require('sockjs');
+  sockjs = require('sockjs'),
+  clients={};
 
 var liveload = {
   watched:false,
   watch: function(server, watchFile) {
     if (watchFile) {
+
+      fs.watchFile(watchFile, function(curr, prev) {
+          for ( var k in clients ) {
+            clients[k].write("reload");
+          }
+      });
+
       var sockjs_live = sockjs.createServer();
       sockjs_live.on('connection', function(conn) {
+        clients[conn.id] = conn;
 
         conn.on('close', function() {
-          fs.unwatchFile(watchFile)
+          delete clients[conn.id];
         });
-
-        fs.watchFile(watchFile, function(curr, prev) {
-          conn.write("reload");
-        });
-
       });
+
       sockjs_live.installHandlers(server, {
         prefix: '/liveload'
       });
+
       this.watched = true;
     }
   },

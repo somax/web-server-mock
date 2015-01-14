@@ -98,26 +98,6 @@ function delDeep(data, _dataParts) {
 }
 
 
-<<<<<<< HEAD
-function readAPI(_apiPath){
-	fs.readFile(_apiPath, function(err, data) {
-		if (err) {
-			console.log('API file not exist: ', err.path);
-			return;
-		}
-		try{
-			mock.api = eval(data.toString());
-			console.log(mock.api);
-		}catch(err){
-			console.log('Parse API Error: ',_apiPath,err)
-			return;
-		}
-
-	});
-}
-
-readAPI(mockdataPath);
-=======
 function readAPI(_apiPath) {
 
 	fs.readdir(_apiPath, function(err, files) {
@@ -152,19 +132,10 @@ function readAPI(_apiPath) {
 
 	})
 }
->>>>>>> js-reload
 
-fs.watchFile(mockdataPath, function(curr, prev) {
-    console.log('Reload API...');
-    readAPI(mockdataPath);   
-});
 
 readAPI(mockdataPath);
 
-fs.watchFile(mockdataPath, function(curr, prev) {
-    console.log('Reload API...');
-    readAPI(mockdataPath);   
-});
 
 
 
