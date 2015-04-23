@@ -17,6 +17,7 @@ mock.api = {
 
 
 mock.GET = function(_path) {
+	console.log('___________path',_path)
 	// var data;
 
 	//获取所有api
@@ -55,9 +56,11 @@ function getApiList() {
 }
 
 function getApiData(_path) {
-	var key = _path.replace('/api/', '');
+
+	var key = _path.replace(/(\/api\/)|(\?.+)|\/$/g, '');
 	var data = mock.api[key] || mock.api[key.split('/')[0]];
 
+	// console.log('\n\n\n\n=======',_path,key)
 
 	// util.log('=-=-=-=-=-=-=isFunction: ',key,util.isFunction(data))
 	return (util.isFunction(data)) ? data(_path) : data;
@@ -142,7 +145,7 @@ function readAPI(_apiPath) {
 					try {
 						var _js = _content.toString();
 
-							// todo 兼容未加 _prefix 的情况
+						// 兼容未加 _prefix 的情况
 						if(!/^\(function/.test(_js))
 							_js = _prefix + _js + _suffix;
 						var _api = eval(_js);

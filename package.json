@@ -11,7 +11,7 @@
     "wsm": "./web-server-mock.js"
   },
   "scripts": {
-    "test": ""
+    "test": "node ./test/mock.test.js"
   },
   "repository": {
     "type": "git",

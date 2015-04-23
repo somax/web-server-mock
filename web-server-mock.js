@@ -25,12 +25,20 @@ var DEFAULT_PORT = 8002;
 var VERSION = '0.2.1 dev';
 
 
+if(process.argv[2] ==='-v'){
+  console.log(VERSION);
+  return;
+}
+
 //读取数据
 mock.readAPI('./mockdata/');
 
 
 
 function main(argv) {
+
+
+
   new HttpServer({
     'GET': createServlet(StaticServlet),
     'POST': createServlet(StaticServlet),
