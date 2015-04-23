@@ -1,4 +1,3 @@
-
 (function(){
 	var _api = {
 		foo: "bar",

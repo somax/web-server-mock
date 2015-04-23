@@ -4,7 +4,7 @@
  * 在Web-server.js的基础上，增加模拟restful api的支持，提供前端ajax开发的模拟数据支撑
  * author: Somax Ma <somaxj@gmail.com>,
  * license: ISC,
- * version: 0.2.0
+ * version: 0.2.1
  */
 
 
@@ -22,7 +22,11 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8002;
 
-var VERSION = '0.2.0 dev'
+var VERSION = '0.2.1 dev';
+
+
+//读取数据
+mock.readAPI('./mockdata/');
 
 
 
@@ -180,7 +184,7 @@ function processRequest(req, callback) {
 
       switch (req.method) {
         case 'GET':
-          var code=200,data = mock.GET(req.url);
+          var code=200,data = mock.GET(req.url.path);
           if(!data){
             data = {error:'not find!'};
             code = 404;
