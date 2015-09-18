@@ -2,7 +2,7 @@
  * [mock 模拟数据模块]
  * @type {Object}
  *
- * last modify 20150413 mxj
+ * last modify 20150423 mxj
  */
 
 var fs = require('fs'),
@@ -17,7 +17,6 @@ mock.api = {
 
 
 mock.GET = function(_path) {
-	console.log('___________path',_path)
 	// var data;
 
 	//获取所有api

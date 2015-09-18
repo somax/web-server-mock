@@ -24,7 +24,6 @@ function query(url) {
 	// 返回数据
 	if (isMainKey) {
 
-		console.log('》》》》》》》》》》》', condition)
 		if (JSON.stringify(condition) === '{}') {
 			return _list;
 		}
