@@ -3,7 +3,7 @@
 		foo: "bar",
 		users: [{name:'moss'},{name:'jhon'}],
 		newv:12345
-	}
+	};
 
 	function getBy(_getKey,_byKey,_value){
 		var _datas = _api[_getKey],
@@ -22,4 +22,4 @@
 
 	return _api;
 
-})()
+})();
