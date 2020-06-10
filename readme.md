@@ -1,4 +1,8 @@
-﻿# WEB SERVER MOCK
+### 此项目已不再维护，推荐使用 https://github.com/typicode/json-server
+### This project is no longer maintained, it is recommended that you use https://github.com/typicode/json-server
+
+
+# WEB SERVER MOCK
  
 此项目在Web-server.js的基础上，增加模拟restful api的支持，提供前端开发的模拟数据支撑。
 
